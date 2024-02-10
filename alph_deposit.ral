@@ -1,0 +1,99 @@
+// Kleo ALPH Deposit
+
+Contract Alphdeposit(
+    alphamt: U256,                      // ALPH Received
+    dev: U256,                          // 1%
+    market: U256,                       // 1%
+    lead: U256,                         // 1%
+    dev: Address,
+    market: Address,
+    lead: Address
+) {
+    // Events
+    event Depositrecieved(who: Address, when: U256, amount: U256)
+    event Devwithdraw(when: U256, amount: U256)
+
+
+    // Error Logging
+    enum Error {
+        InvalidCaller = 1
+    }
+
+    // Functions
+    pub fn getDev() -> U256 {
+        return dev
+    }
+    pub fn getMarket() -> U256 {
+        return dev
+    }
+    pub fn getLead() -> U256 {
+        return dev
+    }
+
+    // Contract Functions
+    @using(preapprovedAssets = true, updateFields = true)
+    pub fn deposit(amount: U256) {
+
+        // Calculate 1% fee with proper scaling for 18 decimals    
+        let fee = amount * 100 / 10000;  // 1% fee with proper decimal handling // TODO verify this code
+
+        // Distribute the fee
+        dev = dev + fee;
+        market = market + fee;
+        lead = lead + fee;
+
+        // Calculate net amount
+        let net_amount = amount - fee * 3;                                      // TODO verify this code
+
+        // Transfer the amount from caller to contract
+        transferToken!(callerAddress!(), selfAddress!(), alph, net_amount);
+
+        // Update total amount
+        alphamt = alphamt + net_amount;
+
+        emit Depositrecieved(callerAddress!(), blockTimeStamp!(), net_amount);
+    }
+
+    @using(preapprovedAssets = true, updateFields = true)
+    pub fn withdrawdev() {
+        
+        let caller = callerAddress!()
+
+        assert!(caller == dev, Error.InvalidCaller)
+
+        dev = dev - dev // 0 out
+
+        transferToken!(selfAddress!(), callerAddress!(), alph, getDev())
+
+        emit Devwithdraw(blockTimeStamp!(), amount)
+    }
+
+    @using(preapprovedAssets = true, updateFields = true)
+    pub fn withdrawmarket() {
+        
+        let caller = callerAddress!()
+
+        assert!(caller == market, Error.InvalidCaller)
+
+        market = market - market // 0 out
+
+        transferToken!(selfAddress!(), callerAddress!(), alph, getMarket())
+
+        emit Devwithdraw(blockTimeStamp!(), amount)
+    }
+
+    @using(preapprovedAssets = true, updateFields = true)
+    pub fn withdrawlead() {
+        
+        let caller = callerAddress!()
+
+        assert!(caller == lead, Error.InvalidCaller)
+
+        lead = lead - lead // 0 out
+
+        transferToken!(selfAddress!(), callerAddress!(), alph, getLead())
+
+        emit Devwithdraw(blockTimeStamp!(), amount)
+    }
+
+}
