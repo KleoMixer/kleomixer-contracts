@@ -1,0 +1,8 @@
+TxScript AddReward (
+    contract: Stake,
+    amount: U256
+) {
+    let token = contract.getMixId()
+
+    contract.topupmix{callerAddress!() -> token: amount}(amount)
+}

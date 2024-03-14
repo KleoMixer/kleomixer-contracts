@@ -1,0 +1,30 @@
+Contract RewardsLocked (
+    owner: Address,
+    timelocked: U256
+) {
+    event Claimed(contractid: ByteVec, who: Address)
+
+    // enum
+    enum ErrorCodes {
+        Durationnotmet = 1
+        InvalidCaller = 2
+    }
+
+    // functions
+    pub fn getOwner() -> Address {
+        return owner
+    }
+
+    // ralph functions
+    @using(assetsInContract = true, updateFields = false, checkExternalCaller = true, preapprovedAssets = false)
+    pub fn claimrewards() -> () {
+
+        checkCaller!(callerAddress!() == owner, ErrorCodes.InvalidCaller)
+
+        assert!(blockTimeStamp!() > timelocked, ErrorCodes.Durationnotmet) // verify time locked
+
+        destroySelf!(owner)
+
+        emit Claimed(selfContractId!(), callerAddress!())
+    }
+}

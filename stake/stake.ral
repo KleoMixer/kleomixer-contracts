@@ -1,0 +1,185 @@
+Contract Stake (
+    mixtoken: ByteVec,
+    stakecontract: ByteVec,
+    owner: Address,
+    mut stakes: U256,
+    mut balancemix: U256
+) {
+    
+    // Events
+    event Destroy(user: Address)
+    event Stake(who: Address, amountlocked: U256, rate: U256, staketobeearned: U256, time: U256, contractid: ByteVec, contractaddress: Address)
+
+    // Enums
+    enum ErrorCodes {
+        InvalidCaller = 1
+    }
+
+    // Functions
+    pub fn getOwner() -> Address {
+        return owner
+    }
+
+    pub fn getMixId() -> ByteVec {
+        return mixtoken
+    }
+
+    // 0.000001% 300000 ms (5 mins)
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = false, preapprovedAssets = true)
+    pub fn teststake(amount: U256) -> () {
+
+        let percentage = amount * 1
+        let stake = percentage / 10000000 // gets 0.000001%
+
+        let (encodeImmutableFields, encodeMutableFields) = RewardsLocked.encodeFields!(callerAddress!(), blockTimeStamp!() + 300000)
+
+        let path = stakes
+
+        let newstakecontract = copyCreateSubContract!{callerAddress!() -> ALPH: 1 alph, getMixId(): amount; selfAddress!() -> getMixId(): stake}(
+            toByteVec!(path),
+            stakecontract,
+            encodeImmutableFields,
+            encodeMutableFields
+        )
+
+        stakes = stakes + 1
+
+        let sub = contractIdToAddress!(newstakecontract)
+
+        balancemix = balancemix - stake
+
+        emit Stake(callerAddress!(), amount, 101, stake, 300000, newstakecontract, sub)
+    }
+
+    // three months in milliseconds 1% 78840000 ms
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = false, preapprovedAssets = true)
+    pub fn threestake(amount: U256) -> () {
+
+        let percentage = amount * 10
+        let stake = percentage / 100 // gets 0.000001%
+
+        let (encodeImmutableFields, encodeMutableFields) = RewardsLocked.encodeFields!(callerAddress!(), blockTimeStamp!() + 7884900000)
+
+        let path = stakes
+
+        let newstakecontract = copyCreateSubContract!{callerAddress!() -> ALPH: 1 alph, getMixId(): amount; selfAddress!() -> getMixId(): stake}(
+            toByteVec!(path),
+            stakecontract,
+            encodeImmutableFields,
+            encodeMutableFields
+        )
+
+        stakes = stakes + 1
+
+        let sub = contractIdToAddress!(newstakecontract)
+
+        balancemix = balancemix - stake
+
+        emit Stake(callerAddress!(), amount, 101, stake, 7884900000, newstakecontract, sub)
+    }
+
+    // six months 3% 157680000 ms
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = false, preapprovedAssets = true)
+    pub fn sixstake(amount: U256) -> () {
+
+        let percentage = amount * 15
+        let stake = percentage / 100 // gets 0.000001%
+
+        let (encodeImmutableFields, encodeMutableFields) = RewardsLocked.encodeFields!(callerAddress!(), blockTimeStamp!() + 15778476000)
+
+        let path = stakes
+
+        let newstakecontract = copyCreateSubContract!{callerAddress!() -> ALPH: 1 alph, getMixId(): amount; selfAddress!() -> getMixId(): stake}(
+            toByteVec!(path),
+            stakecontract,
+            encodeImmutableFields,
+            encodeMutableFields
+        )
+
+        stakes = stakes + 1
+
+        let sub = contractIdToAddress!(newstakecontract)
+
+        balancemix = balancemix - stake
+
+        emit Stake(callerAddress!(), amount, 101, stake, 15778476000, newstakecontract, sub)
+    }
+
+    // nine months 7% 23328000000 ms
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = false, preapprovedAssets = true)
+    pub fn ninestake(amount: U256) -> () {
+
+        let percentage = amount * 20
+        let stake = percentage / 100 // gets 0.000001%
+
+        let (encodeImmutableFields, encodeMutableFields) = RewardsLocked.encodeFields!(callerAddress!(), blockTimeStamp!() + 23682000000)
+
+        let path = stakes
+
+        let newstakecontract = copyCreateSubContract!{callerAddress!() -> ALPH: 1 alph, getMixId(): amount; selfAddress!() -> getMixId(): stake}(
+            toByteVec!(path),
+            stakecontract,
+            encodeImmutableFields,
+            encodeMutableFields
+        )
+
+        stakes = stakes + 1
+
+        let sub = contractIdToAddress!(newstakecontract)
+
+        balancemix = balancemix - stake
+
+        emit Stake(callerAddress!(), amount, 101, stake, 23682000000, newstakecontract, sub)
+    }
+
+    // one year 9% 31536000000 ms
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = false, preapprovedAssets = true)
+    pub fn oneyearstake(amount: U256) -> () {
+
+        let percentage = amount * 40
+        let stake = percentage / 100 // gets 0.000001%
+
+        let (encodeImmutableFields, encodeMutableFields) = RewardsLocked.encodeFields!(callerAddress!(), blockTimeStamp!() + 31556952000)
+
+        let path = stakes
+
+        let newstakecontract = copyCreateSubContract!{callerAddress!() -> ALPH: 1 alph, getMixId(): amount; selfAddress!() -> getMixId(): stake}(
+            toByteVec!(path),
+            stakecontract,
+            encodeImmutableFields,
+            encodeMutableFields
+        )
+
+        stakes = stakes + 1
+
+        let sub = contractIdToAddress!(newstakecontract)
+
+        balancemix = balancemix - stake
+
+        emit Stake(callerAddress!(), amount, 101, stake, 31556952000, newstakecontract, sub)
+    }
+
+    @using(assetsInContract = true, updateFields = true, checkExternalCaller = true, preapprovedAssets = true)
+    pub fn topupmix(amount: U256) -> () {
+
+        let caller = callerAddress!()
+
+        checkCaller!(owner == caller, ErrorCodes.InvalidCaller)
+
+        transferToken!(caller, selfAddress!(), getMixId(), amount)
+
+        balancemix = balancemix + amount
+    }
+
+    @using(assetsInContract = true, updateFields = false, checkExternalCaller = true)
+    pub fn destroystake() -> () {
+
+        let caller = callerAddress!()
+
+        checkCaller!(owner == caller, ErrorCodes.InvalidCaller)
+
+        destroySelf!(owner)
+
+        emit Destroy(owner)
+    }
+}

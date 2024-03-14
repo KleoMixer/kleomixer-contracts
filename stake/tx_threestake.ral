@@ -1,0 +1,11 @@
+TxScript StakeThree(
+    amount: U256,
+    contract: Stake
+) {
+    let minimalAlphInContract = 1 alph
+    let approvedAlphAmount = minimalAlphInContract
+
+    let token = contract.getMixId()
+
+    contract.threestake{callerAddress!() -> ALPH: approvedAlphAmount, token: amount}(amount)
+}

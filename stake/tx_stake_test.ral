@@ -1,0 +1,11 @@
+TxScript StakeTest(
+    amount: U256,
+    contract: Stake
+) {
+    let minimalAlphInContract = 1 alph
+    let approvedAlphAmount = minimalAlphInContract
+
+    let token = contract.getMixId()
+
+    contract.teststake{callerAddress!() -> ALPH: approvedAlphAmount, token: amount}(amount)
+}

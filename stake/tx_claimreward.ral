@@ -1,0 +1,5 @@
+TxScript ClaimReward (
+    contract: RewardsLocked
+) {
+    contract.claimrewards()
+}
