@@ -1,0 +1,8 @@
+TxScript UpgradeMixer(
+    contract: SpeedMixer,
+    newCode: ByteVec, 
+    newImmFieldsEncoded: ByteVec, 
+    newMutFieldsEncoded: ByteVec
+) {
+    contract.upgrade(newCode, newImmFieldsEncoded, newMutFieldsEncoded)
+}

@@ -1,0 +1,6 @@
+TxScript LowerStorage(
+    contract: SpeedMixer,
+    newfee: U256
+) {
+    contract.lowerstoragefee(newfee)
+}

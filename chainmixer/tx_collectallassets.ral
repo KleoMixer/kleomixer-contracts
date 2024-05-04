@@ -1,0 +1,12 @@
+TxScript GetAllAssets(
+    contract: SpeedMixer,
+    key: ByteVec
+){
+    //let hashpath = blake2b!(key)
+
+    //let datacontract = subContractIdOf!(contract, hashpath)
+
+    //let token = MixData(datacontract).getToken()
+
+    contract.getallassets(key)
+}

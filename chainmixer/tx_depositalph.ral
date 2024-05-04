@@ -1,0 +1,6 @@
+TxScript DepositAlph (
+    contract: SpeedMixer
+) {
+
+    contract.depositalph{callerAddress!() -> ALPH: 1 alph}()
+}

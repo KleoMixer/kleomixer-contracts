@@ -1,0 +1,6 @@
+TxScript ChangeFee(
+    newfee: U256,
+    contract: SpeedMixer
+) {
+    contract.changefee(newfee)
+}

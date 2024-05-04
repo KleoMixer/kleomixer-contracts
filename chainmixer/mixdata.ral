@@ -1,0 +1,92 @@
+// Users Mix Data
+
+// Contracts Can Not Be Destroyed Otherwise I Would Be Destroying Asset Amounts
+
+Contract MixData (
+    mut hasharrays: [ByteVec; 10],           // security key to edit dat                                      
+    mut amounts: [U256; 10],                 // the amount as a byteVec and hashed  
+    pcontract: Address
+) {
+
+    // Error Codes
+
+    enum ErrorCodes {
+        InvalidKey = 1
+        InvalidAccess = 2
+        FullContract = 3
+    }
+
+    // Tools
+
+    pub fn getAmount(key: ByteVec) -> U256 {
+
+        let foundindex = getIndex(key)
+        return amounts[foundindex]
+    }
+
+    pub fn getIndex(key: ByteVec) -> U256 {
+        let lock = sha256!(key)
+
+        for (let mut index = 0; index < 10; index = index + 1) { // 0 - 9
+            if (lock == hasharrays[index]) {
+                return index
+            }
+        }
+        return 11 // (NO INDEX FOUND)
+    }
+
+    pub fn getFirstFreeIndex() -> U256 {
+        let nullbyte = toByteVec!(10)
+
+        for (let mut index = 0; index < 10; index = index + 1) {
+            if (hasharrays[index] == nullbyte) {
+                return index
+            }
+        }
+        return 11 // FULL
+    }
+
+    // Add Data to the Contract
+
+    @using(updateFields = true, checkExternalCaller = false)
+    pub fn adduser(key: ByteVec, deposit: U256) -> () {
+        checkCaller!(callerAddress!() == pcontract, ErrorCodes.InvalidAccess)
+        
+        let firstfree = getFirstFreeIndex()
+
+        assert!(firstfree != 11, ErrorCodes.FullContract)
+
+        hasharrays[firstfree] = key
+        amounts[firstfree] = deposit
+    }
+
+    // Existing Data Users
+
+    @using(updateFields = true, checkExternalCaller = false)
+    pub fn changeamount(key: ByteVec, withdrawn: U256) -> (Bool) {
+        checkCaller!(callerAddress!() == pcontract, ErrorCodes.InvalidAccess)
+
+        let nullbyte = toByteVec!(10)
+
+        let foundindex = getIndex(key)
+        
+        // failed assertion
+        assert!(foundindex != 11, ErrorCodes.InvalidKey)                    // hash exists
+
+        amounts[foundindex] = amounts[foundindex] - withdrawn               // amount is edited
+
+        if (amounts[foundindex] == 0) {                                     // if amount equals zero then data becomes free
+            hasharrays[foundindex] = nullbyte                               // FREE DATA SPACE
+        }
+
+        return true
+    }
+
+    @using(preapprovedAssets = false, assetsInContract = true, updateFields = false, checkExternalCaller = false)
+    pub fn destroydata(addy: Address) -> () {
+        checkCaller!(callerAddress!() == pcontract, ErrorCodes.InvalidAccess)
+
+        destroySelf!(addy)
+
+    }
+}

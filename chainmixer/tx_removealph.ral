@@ -1,0 +1,6 @@
+TxScript WithdrawAlph(
+    contract: SpeedMixer,
+    amount: U256
+) {
+    contract.removealph(amount)
+}

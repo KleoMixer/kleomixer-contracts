@@ -1,0 +1,11 @@
+TxScript CreateMixData(
+    contract: SpeedMixer,
+    key: ByteVec,
+    amount: U256
+) {
+    let mixfee = contract.getMixFee()
+
+    let mixtoken = contract.getMixToken()
+
+    contract.createmixdata{callerAddress!() -> ALPH: amount, mixtoken: mixfee}(key, amount)
+}
