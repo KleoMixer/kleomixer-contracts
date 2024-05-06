@@ -2,7 +2,7 @@
 
 // Testnet Version Features Destroyable Contracts; Mainnet does not.
 
-Contract SpeedMixer (
+Contract SpeedMixerUpgrade (
     owner: Address,		                        // Owner of Contract (Mix Dev)
     mut mixfee: U256,                           // ALPH on testnet
     mixtoken: ByteVec,
@@ -60,6 +60,8 @@ Contract SpeedMixer (
             transferToken!(callerAddress!(), selfAddress!(), ALPH, amount)
             transferToken!(callerAddress!(), selfAddress!(), getMixToken(), getMixFee())
 
+            feescollected = feescollected + getMixFee() // upgrade 4/23/24
+
         }
         else {
 
@@ -88,7 +90,7 @@ Contract SpeedMixer (
     }
 
     @using(preapprovedAssets = false, assetsInContract = true, updateFields = false, checkExternalCaller = false)
-    pub fn getassets(amount: U256, key: ByteVec) -> () { // key is then used for sub contract path
+    pub fn getassets(key: ByteVec) -> () { // key is then used for sub contract path
 
         for (let mut index = 0; index < datacontracts; index = index + 1) {
 
@@ -98,11 +100,13 @@ Contract SpeedMixer (
 
             if (ishashpresent != 11) {
 
-                let editeddata = MixData(mixsubcontract).changeamount(key, amount)
+                let alphamount = MixData(mixsubcontract).getAmount(key)
+
+                let editeddata = MixData(mixsubcontract).changeamount(key, alphamount)
 
                 if (editeddata == true) {
 
-                    transferToken!(selfAddress!(), callerAddress!(), ALPH, amount)
+                    transferToken!(selfAddress!(), callerAddress!(), ALPH, alphamount)
 
                 }
             }
@@ -137,6 +141,13 @@ Contract SpeedMixer (
 
     @using(preapprovedAssets = false, assetsInContract = true, updateFields = true, checkExternalCaller = true)
     pub fn collectfees() -> () {
+
+        let percent = feescollected * 5
+        let total = percent / 100
+
+        burnToken!(selfAddress!(), getMixToken(), total)
+
+        feescollected = feescollected - total
 
         checkCaller!(owner == callerAddress!(), ErrorCodes.InvalidCaller)
 
